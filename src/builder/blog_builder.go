@@ -35,21 +35,33 @@ func NewBlogBuilder(workspace string) (*BlogBuilder, error) {
 	return builder, nil
 }
 
-func (b *BlogBuilder) RebuildAll() error {
-	b.reloadArticles()
+func (b *BlogBuilder) RebuildAll() {
+	if err := b.reloadArticles(); err != nil {
+		log.Fatal(err)
+	}
 
 	infos := make([]*ArticleInfo, 0)
 	for _, article := range b.articles {
-		log.Println("parse", article.Filename())
 		info, err := article.Parse()
 		if err != nil {
-			return err
+			log.Fatal(err)
 		}
-		infos = append(infos, info)
 
-		filename := filepath.Join(b.publicPath, info.Filename)
-		if err := b.renderArticle(info, filename); err != nil {
-			return err
+		htmlfile := filepath.Join(b.publicPath, article.HtmlName())
+
+		if info.IsPublic {
+			infos = append(infos, info)
+			log.Println("parse", article.BaseName())
+			if err := b.renderArticle(info, htmlfile); err != nil {
+				log.Fatal(err)
+			}
+		} else {
+			if _, err := os.Stat(htmlfile); err == nil {
+				log.Printf("remove prvate blog %s\n", article.HtmlName())
+				os.Remove(htmlfile)
+			} else {
+				log.Printf("skip private blog %s\n", article.BaseName())
+			}
 		}
 	}
 
@@ -58,10 +70,10 @@ func (b *BlogBuilder) RebuildAll() error {
 		Articles: infos,
 	}
 	indexName := filepath.Join(b.publicPath, "index.html")
+	log.Println("rebuild index.html with", len(infos), "articles")
 	if err := b.renderHome(homeInfo, indexName); err != nil {
-		return err
+		log.Fatal(err)
 	}
-	return nil
 }
 
 func (b *BlogBuilder) renderHome(info *HomeInfo, filename string) error {
@@ -80,9 +92,9 @@ func (b *BlogBuilder) renderArticle(info *ArticleInfo, filename string) error {
 	return ioutil.WriteFile(filename, buf.Bytes(), 0666)
 }
 
-func (b *BlogBuilder) reloadArticles() {
+func (b *BlogBuilder) reloadArticles() error {
 	b.articles = make([]*Article, 0)
-	filepath.Walk(b.articlePath, func(filename string, info os.FileInfo, err error) error {
+	return filepath.Walk(b.articlePath, func(filename string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}

@@ -9,11 +9,6 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println(r.URL.String())
 
 	if r.URL.String() == "/api/rebuild" {
-		rebuildAll()
+		blogBuilder.RebuildAll()
 	}
-}
-
-func rebuildAll() {
-
-	blogBuilder.RebuildAll()
 }
