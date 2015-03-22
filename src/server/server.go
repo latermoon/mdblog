@@ -27,7 +27,7 @@ func ListenAndServe(host string, workspace string) {
 	go http.ListenAndServe(host, nil)
 
 	log.Println("watching:", workspace)
-	go watch(filepath.Join(workspace, "article"))
+	go watch(filepath.Join(workspace, "article"), filepath.Join(workspace, "template"))
 
 	<-done
 }

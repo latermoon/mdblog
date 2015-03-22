@@ -18,7 +18,7 @@ func rebuildArticles(task int) {
 	blogBuilder.RebuildAll()
 }
 
-func watch(dir string) {
+func watch(dirs ...string) {
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
 		log.Fatal(err)
@@ -42,9 +42,11 @@ func watch(dir string) {
 		}
 	}()
 
-	err = watcher.Watch(dir)
-	if err != nil {
-		log.Fatal(err)
+	for _, dir := range dirs {
+		err = watcher.Watch(dir)
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 
 	<-done
