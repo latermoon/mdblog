@@ -15,14 +15,5 @@ go build src/mdblog.go
 go get github.com/PuerkitoBio/goquery
 go get github.com/russross/blackfriday
 go get github.com/nfnt/resize
-go get gopkg.in/fsnotify.v1
-github.com/howeyc/fsnotify
-```
-
-### Builder
-```
-builder := NewBlogBuilder()
-builder.AddArticles(...)
-builder.RebuildAll()
-
+go get github.com/howeyc/fsnotify
 ```

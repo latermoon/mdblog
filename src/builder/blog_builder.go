@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"sort"
 )
 
 type BlogBuilder struct {
@@ -21,21 +22,16 @@ func NewBlogBuilder(workspace string) (*BlogBuilder, error) {
 	builder := &BlogBuilder{
 		workspace: workspace,
 	}
-
-	tmpl, err := template.ParseFiles(
-		filepath.Join(workspace, "template", "article.tmpl"),
-		filepath.Join(workspace, "template", "home.tmpl"),
-	)
-	if err != nil {
-		return nil, err
-	}
-	builder.template = tmpl
 	builder.articlePath = filepath.Join(workspace, "article")
 	builder.publicPath = filepath.Join(workspace, "public")
 	return builder, nil
 }
 
 func (b *BlogBuilder) RebuildAll() {
+	if err := b.initTemplate(); err != nil {
+		log.Fatal(err)
+	}
+
 	if err := b.reloadArticles(); err != nil {
 		log.Fatal(err)
 	}
@@ -94,7 +90,7 @@ func (b *BlogBuilder) renderArticle(info *ArticleInfo, filename string) error {
 
 func (b *BlogBuilder) reloadArticles() error {
 	b.articles = make([]*Article, 0)
-	return filepath.Walk(b.articlePath, func(filename string, info os.FileInfo, err error) error {
+	err := filepath.Walk(b.articlePath, func(filename string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
@@ -108,4 +104,15 @@ func (b *BlogBuilder) reloadArticles() error {
 		b.articles = append(b.articles, article)
 		return nil
 	})
+	sort.Sort(sort.Reverse(Articles(b.articles)))
+	return err
+}
+
+func (b *BlogBuilder) initTemplate() error {
+	tmpl, err := template.ParseFiles(
+		filepath.Join(b.workspace, "template", "article.tmpl"),
+		filepath.Join(b.workspace, "template", "home.tmpl"),
+	)
+	b.template = tmpl
+	return err
 }

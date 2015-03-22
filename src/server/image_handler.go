@@ -6,6 +6,7 @@ import (
 	"image"
 	"image/jpeg"
 	"image/png"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -18,8 +19,8 @@ func imageHandler(w http.ResponseWriter, r *http.Request) {
 	dir, _, srcname, sizes := fileInfo(r.URL.Path)
 	srcfile := filepath.Join(Workspace, "public", dir, srcname)
 	log.Println(r.URL.Path, srcname, sizes)
-	// expired
-	w.Header().Add("Cache-Control", fmt.Sprintf("max-age=%d", 3600))
+	// caching
+	// w.Header().Add("Cache-Control", fmt.Sprintf("max-age=%d", 3600))
 	// w.Header().Add("Content-Length", "46639")
 	// w.Header().Add("Last-Modified", "Sat, 21 Mar 2015 18:33:18 GMT")
 	// w.Header().Add("Expires", "Sat, 28 Mar 2016 13:40:31 GMT")
@@ -29,7 +30,16 @@ func imageHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	rimg := resize.Thumbnail(uint(sizes[0]), uint(sizes[1]), mimg, resize.Lanczos3)
-	jpeg.Encode(w, rimg, &jpeg.Options{Quality: 75})
+	encodeImage(w, rimg, filepath.Ext(srcname))
+}
+
+func encodeImage(w io.Writer, m image.Image, ext string) {
+	switch strings.ToLower(ext) {
+	case ".png":
+		png.Encode(w, m)
+	default: // ".jpg", ".jpeg":
+		jpeg.Encode(w, m, &jpeg.Options{Quality: 85})
+	}
 }
 
 func loadImage(filename string) (img image.Image, err error) {
@@ -41,9 +51,7 @@ func loadImage(filename string) (img image.Image, err error) {
 
 	ext := filepath.Ext(filename)
 	switch strings.ToLower(ext) {
-	case ".jpg":
-		return jpeg.Decode(f)
-	case ".jpeg":
+	case ".jpg", ".jpeg":
 		return jpeg.Decode(f)
 	case ".png":
 		return png.Decode(f)
