@@ -7,7 +7,10 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"regexp"
+	"strconv"
 	"strings"
+	"time"
 )
 
 type Article struct {
@@ -32,6 +35,7 @@ func (a *Article) Parse() (*ArticleInfo, error) {
 	info.Filename = a.filename
 	info.IsPublic = true // default
 	info.Url = a.HtmlName()
+	info.Date = time.Unix(0, 0)
 
 	// parse markdown
 	md, err := ioutil.ReadFile(a.filename)
@@ -63,7 +67,7 @@ func (a *Article) fillInfo(mdhtml string, info *ArticleInfo) error {
 		if strings.HasPrefix(text, "by") {
 			info.Author = text[3:]
 		} else if strings.HasPrefix(text, "on") {
-			info.Date = text[3:]
+			info.Date = parseDate(text[3:])
 		} else if strings.HasPrefix(text, "private") {
 			info.IsPublic = false
 		}
@@ -80,6 +84,21 @@ func (a *Article) fillInfo(mdhtml string, info *ArticleInfo) error {
 	}
 
 	return nil
+}
+
+func parseDate(s string) time.Time {
+	re := regexp.MustCompile(`(\d{4})\-(\d{1,2})-(\d{1,2})`)
+	matches := re.FindStringSubmatch(s)
+	if len(matches) == 0 {
+		return time.Unix(0, 0)
+	}
+	year, e1 := strconv.Atoi(matches[1])
+	month, e2 := strconv.Atoi(matches[2])
+	day, e3 := strconv.Atoi(matches[3])
+	if e1 != nil || e2 != nil || e3 != nil {
+		return time.Unix(0, 0)
+	}
+	return time.Date(year, time.Month(month), day, 0, 0, 0, 0, time.Local)
 }
 
 func (a *Article) Filename() string {
