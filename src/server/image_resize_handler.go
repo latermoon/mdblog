@@ -17,13 +17,14 @@ import (
 
 func imageResizeHandler(w http.ResponseWriter, r *http.Request) {
 	dir, _, srcname, sizes := fileInfo(r.URL.Path)
-	srcfile := filepath.Join(Workspace, "public", dir, srcname)
+	var srcfile string
+	if strings.HasPrefix(r.URL.Path, "/private/") {
+		srcfile = filepath.Join(Workspace, "private", dir, srcname)
+	} else {
+		srcfile = filepath.Join(Workspace, "public", dir, srcname)
+	}
+
 	log.Println(r.URL.Path, srcname, sizes)
-	// caching
-	// w.Header().Add("Cache-Control", fmt.Sprintf("max-age=%d", 3600))
-	// w.Header().Add("Content-Length", "46639")
-	// w.Header().Add("Last-Modified", "Sat, 21 Mar 2015 18:33:18 GMT")
-	// w.Header().Add("Expires", "Sat, 28 Mar 2016 13:40:31 GMT")
 	mimg, err := loadImage(srcfile)
 	if err != nil {
 		fmt.Fprintln(w, err)

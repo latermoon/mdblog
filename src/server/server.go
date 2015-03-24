@@ -3,6 +3,7 @@ package server
 import (
 	"builder"
 	"github.com/go-martini/martini"
+	"github.com/martini-contrib/sessions"
 	"log"
 	"path/filepath"
 )
@@ -21,14 +22,18 @@ func ListenAndServe(addr string, workspace string) {
 	}
 	done := make(chan bool)
 
-	log.Println("watching:", workspace)
-	go watch(filepath.Join(workspace, "article"), filepath.Join(workspace, "template"))
+	log.Println("workspace:", workspace)
+	// go watch(filepath.Join(workspace, "article"), filepath.Join(workspace, "template"))
 
 	m := martini.Classic()
+	m.Use(sessions.Sessions("sess", sessions.NewCookieStore([]byte("auth"))))
 	m.Use(martini.Static(filepath.Join(workspace, "public")))
+	m.Get("/", publicIndexHandler)
 	m.Get(`/([^\/]*).html`, publicArticleHandler)
 	m.Get("/img/(.*)", imageResizeHandler)
+	m.Post("/auth", authHandler)
 	m.Group("/private", privateGroup)
+	m.Get("/private/img/(.*)", imageResizeHandler)
 	m.RunOnAddr(addr)
 
 	<-done
