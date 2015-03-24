@@ -27,6 +27,7 @@ func NewBlogBuilder(workspace string) (*BlogBuilder, error) {
 	return builder, nil
 }
 
+// Rebuild All
 func (b *BlogBuilder) RebuildAll() {
 	if err := b.initTemplate(); err != nil {
 		log.Fatal(err)
@@ -52,14 +53,13 @@ func (b *BlogBuilder) RebuildAll() {
 				log.Fatal(err)
 			}
 		} else {
-			if _, err := os.Stat(htmlfile); err == nil {
-				log.Printf("remove prvate blog %s\n", article.HtmlName())
-				os.Remove(htmlfile)
-			} else {
-				log.Printf("skip private blog %s\n", article.BaseName())
-			}
+			log.Printf("skip private %s\n", article.BaseName())
 		}
 	}
+
+	b.removeUnuseHtml()
+
+	sort.Sort(sort.Reverse(ArticleInfos(infos)))
 
 	homeInfo := &HomeInfo{
 		Title:    "latermoon's blog",
@@ -69,6 +69,34 @@ func (b *BlogBuilder) RebuildAll() {
 	log.Println("rebuild index.html with", len(infos), "articles")
 	if err := b.renderHome(homeInfo, indexName); err != nil {
 		log.Fatal(err)
+	}
+}
+
+// when you set a article as `- private` or delete it, it's html should be remove from public
+func (b *BlogBuilder) removeUnuseHtml() {
+	// prevent errors caused by an empty array bug
+	if len(b.articles) == 0 {
+		return
+	}
+	filesInuse := make(map[string]bool)
+	for _, art := range b.articles {
+		filesInuse[art.HtmlName()] = true
+	}
+
+	files, err := ioutil.ReadDir(b.publicPath)
+	if err != nil {
+		log.Fatal(err)
+	}
+	for _, file := range files {
+		if file.IsDir() {
+			continue
+		} else if file.Name() == "index.html" {
+			continue
+		}
+		if _, ok := filesInuse[file.Name()]; !ok {
+			log.Println("remove unuse ", file.Name())
+			os.Remove(filepath.Join(b.publicPath, file.Name()))
+		}
 	}
 }
 
@@ -90,21 +118,20 @@ func (b *BlogBuilder) renderArticle(info *ArticleInfo, filename string) error {
 
 func (b *BlogBuilder) reloadArticles() error {
 	b.articles = make([]*Article, 0)
-	err := filepath.Walk(b.articlePath, func(filename string, info os.FileInfo, err error) error {
+	files, err := ioutil.ReadDir(b.articlePath)
+	if err != nil {
+		return err
+	}
+	for _, file := range files {
+		if file.IsDir() {
+			continue
+		}
+		art, err := NewArticle(filepath.Join(b.articlePath, file.Name()))
 		if err != nil {
 			return err
 		}
-		if info.IsDir() {
-			return nil
-		}
-		article, err := NewArticle(filename)
-		if err != nil {
-			return err
-		}
-		b.articles = append(b.articles, article)
-		return nil
-	})
-	sort.Sort(sort.Reverse(Articles(b.articles)))
+		b.articles = append(b.articles, art)
+	}
 	return err
 }
 

@@ -15,17 +15,15 @@ import (
 
 type Article struct {
 	filename string
-	info     os.FileInfo
+	info     *ArticleInfo
 }
 
 func NewArticle(filename string) (*Article, error) {
 	a := &Article{
 		filename: filename,
 	}
-	if info, err := os.Stat(filename); err != nil {
+	if _, err := os.Stat(filename); err != nil {
 		return nil, err
-	} else {
-		a.info = info
 	}
 	return a, nil
 }
@@ -47,6 +45,7 @@ func (a *Article) Parse() (*ArticleInfo, error) {
 	// file info
 	a.fillInfo(mdhtml, info)
 
+	a.info = info
 	return info, nil
 }
 
@@ -99,6 +98,10 @@ func parseDate(s string) time.Time {
 		return time.Unix(0, 0)
 	}
 	return time.Date(year, time.Month(month), day, 0, 0, 0, 0, time.Local)
+}
+
+func (a *Article) Info() *ArticleInfo {
+	return a.info
 }
 
 func (a *Article) Filename() string {
