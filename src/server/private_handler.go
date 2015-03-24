@@ -28,7 +28,7 @@ func privateArticleHandler(w http.ResponseWriter, r *http.Request, session sessi
 	if ok := checkAuth(w, r, session); !ok {
 		return
 	}
-	serveArticle(w, r, filename)
+	serveArticle(w, r, false, filename)
 }
 
 func privateFileHandler(w http.ResponseWriter, r *http.Request, session sessions.Session) {

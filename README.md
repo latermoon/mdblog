@@ -17,7 +17,7 @@ go get github.com/russross/blackfriday
 go get github.com/nfnt/resize
 go get github.com/howeyc/fsnotify
 go get github.com/go-martini/martini
-go get github.com/martini-contrib/auth
+go get github.com/martini-contrib/sessions
 ```
 
 ### URL
