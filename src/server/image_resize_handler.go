@@ -15,7 +15,7 @@ import (
 	"strings"
 )
 
-func imageHandler(w http.ResponseWriter, r *http.Request) {
+func imageResizeHandler(w http.ResponseWriter, r *http.Request) {
 	dir, _, srcname, sizes := fileInfo(r.URL.Path)
 	srcfile := filepath.Join(Workspace, "public", dir, srcname)
 	log.Println(r.URL.Path, srcname, sizes)

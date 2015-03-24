@@ -24,6 +24,7 @@ func NewBlogBuilder(workspace string) (*BlogBuilder, error) {
 	}
 	builder.articlePath = filepath.Join(workspace, "article")
 	builder.publicPath = filepath.Join(workspace, "public")
+	builder.initTemplate()
 	return builder, nil
 }
 
@@ -142,4 +143,8 @@ func (b *BlogBuilder) initTemplate() error {
 	)
 	b.template = tmpl
 	return err
+}
+
+func (b *BlogBuilder) Template() *template.Template {
+	return b.template
 }

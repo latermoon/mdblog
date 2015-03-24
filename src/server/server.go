@@ -2,15 +2,15 @@ package server
 
 import (
 	"builder"
+	"github.com/go-martini/martini"
 	"log"
-	"net/http"
 	"path/filepath"
 )
 
 var Workspace string // website home directory
 var blogBuilder *builder.BlogBuilder
 
-func ListenAndServe(host string, workspace string) {
+func ListenAndServe(addr string, workspace string) {
 	Workspace = workspace
 
 	// builder
@@ -21,13 +21,15 @@ func ListenAndServe(host string, workspace string) {
 	}
 	done := make(chan bool)
 
-	// http server
-	http.HandleFunc("/api/", apiHandler)
-	http.HandleFunc("/img/", imageHandler)
-	go http.ListenAndServe(host, nil)
-
 	log.Println("watching:", workspace)
 	go watch(filepath.Join(workspace, "article"), filepath.Join(workspace, "template"))
+
+	m := martini.Classic()
+	m.Use(martini.Static(filepath.Join(workspace, "public")))
+	m.Get(`/([^\/]*).html`, publicArticleHandler)
+	m.Get("/img/(.*)", imageResizeHandler)
+	m.Group("/private", privateGroup)
+	m.RunOnAddr(addr)
 
 	<-done
 }

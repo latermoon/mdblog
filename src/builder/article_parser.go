@@ -6,31 +6,31 @@ import (
 	"html/template"
 	"io/ioutil"
 	"os"
-	"path/filepath"
 	"strings"
 	"time"
 )
 
-type Article struct {
-	filename string
-	info     *ArticleInfo
+type ArticleParser struct {
+	filename   string
+	htmlResult string
 }
 
-func NewArticle(filename string) (*Article, error) {
-	a := &Article{
+func NewArticleParser(filename string) *ArticleParser {
+	return &ArticleParser{
 		filename: filename,
 	}
-	if _, err := os.Stat(filename); err != nil {
-		return nil, err
-	}
-	return a, nil
 }
 
-func (a *Article) Parse() (*ArticleInfo, error) {
+func (a *ArticleParser) Parse() (*ArticleInfo, error) {
+	if _, err := os.Stat(a.filename); err != nil {
+		return nil, err
+	}
 	info := &ArticleInfo{}
-	info.Filename = a.filename
 	info.IsPublic = true // default
-	info.Url = a.HtmlName()
+	info.Filename = a.filename
+	info.BaseName = baseName(a.filename)
+	info.HtmlName = htmlName(info.BaseName)
+	info.Url = info.HtmlName
 	info.Date = time.Unix(0, 0)
 
 	// parse markdown
@@ -41,13 +41,13 @@ func (a *Article) Parse() (*ArticleInfo, error) {
 	mdhtml := string(blackfriday.MarkdownCommon(md))
 
 	// file info
-	a.fillInfo(mdhtml, info)
-
-	a.info = info
+	if err := a.fillInfo(mdhtml, info); err != nil {
+		return nil, err
+	}
 	return info, nil
 }
 
-func (a *Article) fillInfo(mdhtml string, info *ArticleInfo) error {
+func (a *ArticleParser) fillInfo(mdhtml string, info *ArticleInfo) error {
 	doc, err := goquery.NewDocumentFromReader(strings.NewReader(mdhtml))
 	if err != nil {
 		return err
@@ -81,31 +81,4 @@ func (a *Article) fillInfo(mdhtml string, info *ArticleInfo) error {
 	}
 
 	return nil
-}
-
-func (a *Article) Info() *ArticleInfo {
-	return a.info
-}
-
-func (a *Article) Filename() string {
-	return a.filename
-}
-
-func (a *Article) BaseName() string {
-	_, file := filepath.Split(a.filename)
-	return file
-}
-
-func (a *Article) HtmlName() string {
-	name := a.BaseName()
-	comma := strings.LastIndex(name, ",")
-	if comma != -1 {
-		name = strings.TrimSpace(name[comma+1:])
-	}
-	ext := filepath.Ext(name)
-	return strings.TrimSuffix(name, ext) + ".html"
-}
-
-func (a *Article) String() string {
-	return a.Filename()
 }
