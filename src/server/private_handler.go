@@ -7,6 +7,7 @@ import (
 	"github.com/martini-contrib/sessions"
 	"io"
 	"net/http"
+	"os"
 	"path/filepath"
 	"strings"
 )
@@ -34,6 +35,10 @@ func privateArticleHandler(w http.ResponseWriter, r *http.Request, session sessi
 func privateFileHandler(w http.ResponseWriter, r *http.Request, session sessions.Session) {
 	filename := filepath.Join(Workspace, r.URL.Path)
 	if ok := checkAuth(w, r, session); !ok {
+		return
+	}
+	if _, err := os.Stat(filename); err != nil && strings.HasPrefix(r.URL.Path, "/private/img/") {
+		imageResizeHandler(w, r)
 		return
 	}
 	http.ServeFile(w, r, filename)

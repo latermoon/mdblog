@@ -19,7 +19,7 @@ func imageResizeHandler(w http.ResponseWriter, r *http.Request) {
 	dir, _, srcname, sizes := fileInfo(r.URL.Path)
 	var srcfile string
 	if strings.HasPrefix(r.URL.Path, "/private/") {
-		srcfile = filepath.Join(Workspace, "private", dir, srcname)
+		srcfile = filepath.Join(Workspace, dir, srcname)
 	} else {
 		srcfile = filepath.Join(Workspace, "public", dir, srcname)
 	}

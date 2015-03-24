@@ -33,7 +33,6 @@ func ListenAndServe(addr string, workspace string) {
 	m.Get("/img/(.*)", imageResizeHandler)
 	m.Post("/auth", authHandler)
 	m.Group("/private", privateGroup)
-	m.Get("/private/img/(.*)", imageResizeHandler)
 	m.RunOnAddr(addr)
 
 	<-done
