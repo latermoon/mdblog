@@ -38,11 +38,12 @@ func ListenAndServe(addr string, dir string) {
 		Expires:     func() string { return time.Now().In(gmtLoc).Add(time.Hour * 24 * 7).Format(time.RFC1123) },
 	}))
 	m.Get("/", publicIndexHandler)
-	m.Get(`/([^\/]*).html`, publicArticleHandler)
+	m.Group("/private", privateGroup)
+	m.Get(`/(.*).html`, publicArticleHandler)
 	m.Get("/img/(.*)", imageResizeHandler)
 	m.Post("/auth", authHandler)
 	m.Get("/logout", logoutHandler)
-	m.Group("/private", privateGroup)
+
 	m.RunOnAddr(addr)
 }
 
