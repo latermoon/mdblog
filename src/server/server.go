@@ -34,7 +34,8 @@ func ListenAndServe(addr string, dir string) {
 	m.Use(sessions.Sessions("sess", store))
 	gmtLoc, _ := time.LoadLocation("GMT")
 	m.Use(martini.Static(filepath.Join(dir, "public"), martini.StaticOptions{
-		Expires: func() string { return time.Now().In(gmtLoc).Add(time.Hour * 24 * 7).Format(time.RFC1123) },
+		SkipLogging: true,
+		Expires:     func() string { return time.Now().In(gmtLoc).Add(time.Hour * 24 * 7).Format(time.RFC1123) },
 	}))
 	m.Get("/", publicIndexHandler)
 	m.Get(`/([^\/]*).html`, publicArticleHandler)

@@ -8,6 +8,18 @@ export GOPATH=$GOPATH:($pwd)
 go build src/mdblog.go
 
 ./mdblog -d website_dir -p localhost:8801
+
+append to nginx.conf
+
+server {
+	listen    80;
+	server_name    your.blog.name;
+
+	location / {
+		proxy_pass http://localhost:8801;
+	}
+}
+
 ```
 
 ### Imported
