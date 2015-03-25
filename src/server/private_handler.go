@@ -18,9 +18,12 @@ func privateGroup(r martini.Router) {
 	r.Get(`/(.*)`, privateFileHandler)
 }
 
-func privateIndexHandler(w http.ResponseWriter, r *http.Request) {
+func privateIndexHandler(w http.ResponseWriter, r *http.Request, session sessions.Session) {
 	dirname := filepath.Join(Workspace, "private")
-	serveIndex(w, r, dirname)
+	if ok := checkAuth(w, r, session); !ok {
+		return
+	}
+	serveIndex(w, r, false, dirname)
 }
 
 // <script>var pwd = prompt('Your password?');alert(pwd);</script>
@@ -46,8 +49,8 @@ func privateFileHandler(w http.ResponseWriter, r *http.Request, session sessions
 
 func checkAuth(w http.ResponseWriter, r *http.Request, session sessions.Session) bool {
 	pwd := currentPassword()
-	salt := fmt.Sprintf("%x", md5.Sum([]byte("auth"+pwd)))
-	auth := session.Get("auth")
+	salt := fmt.Sprintf("%x", md5.Sum([]byte(sessName+pwd)))
+	auth := session.Get(sessName)
 	if auth != salt {
 		io.WriteString(w, authFormStirng)
 		return false

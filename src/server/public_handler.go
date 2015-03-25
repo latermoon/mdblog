@@ -17,7 +17,7 @@ func publicArticleHandler(w http.ResponseWriter, r *http.Request) {
 
 func publicIndexHandler(w http.ResponseWriter, r *http.Request) {
 	dirname := filepath.Join(Workspace, "article")
-	serveIndex(w, r, dirname)
+	serveIndex(w, r, true, dirname)
 }
 
 // render markdown article to html
@@ -36,7 +36,7 @@ func serveArticle(w http.ResponseWriter, r *http.Request, isPublic bool, filenam
 	}
 }
 
-func serveIndex(w http.ResponseWriter, r *http.Request, dirname string) {
+func serveIndex(w http.ResponseWriter, r *http.Request, showPrivate bool, dirname string) {
 	files, err := ioutil.ReadDir(dirname)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -59,7 +59,11 @@ func serveIndex(w http.ResponseWriter, r *http.Request, dirname string) {
 		infos = append(infos, info)
 	}
 	sort.Sort(sort.Reverse(builder.ArticleInfos(infos)))
-	data := map[string]interface{}{"Articles": infos, "Title": "latermoon's blog"}
+	data := map[string]interface{}{
+		"Articles":    infos,
+		"Title":       "latermoon's blog",
+		"ShowPrivate": showPrivate,
+	}
 	if err := blogBuilder.Template().ExecuteTemplate(w, "home.tmpl", data); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprintf(w, "parse error: %s", err)

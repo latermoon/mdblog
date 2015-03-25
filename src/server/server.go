@@ -11,6 +11,8 @@ import (
 var Workspace string // website home directory
 var blogBuilder *builder.BlogBuilder
 
+const sessName = "auth2"
+
 func ListenAndServe(addr string, workspace string) {
 	Workspace = workspace
 
@@ -26,7 +28,12 @@ func ListenAndServe(addr string, workspace string) {
 	// go watch(filepath.Join(workspace, "article"), filepath.Join(workspace, "template"))
 
 	m := martini.Classic()
-	m.Use(sessions.Sessions("sess", sessions.NewCookieStore([]byte("auth"))))
+	store := sessions.NewCookieStore([]byte(sessName))
+	store.Options(sessions.Options{
+		Path:   "/private/",
+		MaxAge: 24 * 60 * 60, // one day
+	})
+	m.Use(sessions.Sessions("sess", store))
 	m.Use(martini.Static(filepath.Join(workspace, "public")))
 	m.Get("/", publicIndexHandler)
 	m.Get(`/([^\/]*).html`, publicArticleHandler)

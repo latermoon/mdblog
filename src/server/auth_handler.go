@@ -12,8 +12,8 @@ import (
 func authHandler(w http.ResponseWriter, r *http.Request, session sessions.Session) {
 	pwd := r.PostFormValue("pwd")
 	if pwd == currentPassword() {
-		salt := fmt.Sprintf("%x", md5.Sum([]byte("auth"+pwd)))
-		session.Set("auth", salt)
+		salt := fmt.Sprintf("%x", md5.Sum([]byte(sessName+pwd)))
+		session.Set(sessName, salt)
 	} else {
 		log.Println("login fail", pwd)
 	}
