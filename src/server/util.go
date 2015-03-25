@@ -26,7 +26,11 @@ function postwith(to, vals) {
 }
 
 var pwd = prompt('Your password?');
-postwith('/auth', {'pwd':pwd});
+if (!pwd) {
+	location.href = '/';
+} else {
+	postwith('/auth', {'pwd':pwd});
+}
 </script>
 </body>
 </html>

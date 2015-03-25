@@ -19,3 +19,8 @@ func authHandler(w http.ResponseWriter, r *http.Request, session sessions.Sessio
 	}
 	http.Redirect(w, r, r.Referer(), http.StatusFound)
 }
+
+func logoutHandler(w http.ResponseWriter, r *http.Request, session sessions.Session) {
+	session.Delete(sessName)
+	http.Redirect(w, r, "/", http.StatusSeeOther)
+}

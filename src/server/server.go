@@ -39,6 +39,7 @@ func ListenAndServe(addr string, workspace string) {
 	m.Get(`/([^\/]*).html`, publicArticleHandler)
 	m.Get("/img/(.*)", imageResizeHandler)
 	m.Post("/auth", authHandler)
+	m.Get("/logout", logoutHandler)
 	m.Group("/private", privateGroup)
 	m.RunOnAddr(addr)
 

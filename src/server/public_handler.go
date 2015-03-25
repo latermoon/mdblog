@@ -36,7 +36,7 @@ func serveArticle(w http.ResponseWriter, r *http.Request, isPublic bool, filenam
 	}
 }
 
-func serveIndex(w http.ResponseWriter, r *http.Request, showPrivate bool, dirname string) {
+func serveIndex(w http.ResponseWriter, r *http.Request, isPublic bool, dirname string) {
 	files, err := ioutil.ReadDir(dirname)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -60,9 +60,9 @@ func serveIndex(w http.ResponseWriter, r *http.Request, showPrivate bool, dirnam
 	}
 	sort.Sort(sort.Reverse(builder.ArticleInfos(infos)))
 	data := map[string]interface{}{
-		"Articles":    infos,
-		"Title":       "latermoon's blog",
-		"ShowPrivate": showPrivate,
+		"Articles": infos,
+		"Title":    "latermoon's blog",
+		"IsPublic": isPublic,
 	}
 	if err := blogBuilder.Template().ExecuteTemplate(w, "home.tmpl", data); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
