@@ -15,6 +15,7 @@ import (
 func privateGroup(r martini.Router) {
 	r.Get("/", privateIndexHandler)
 	r.Get(`/(.*).html`, privateArticleHandler)
+	r.Get("/password.txt", func(w http.ResponseWriter) { w.WriteHeader(http.StatusForbidden) })
 	r.Get(`/(.*)`, privateFileHandler)
 }
 
