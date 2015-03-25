@@ -11,6 +11,7 @@ func init() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
 }
 
+// go run src/mdblog.go -h localhost:8801 -d /home/workspace/blog.latermoon.me
 func main() {
 	host, dir := readFlags()
 	if dir == "" {
