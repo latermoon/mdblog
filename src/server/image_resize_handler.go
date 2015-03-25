@@ -13,6 +13,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
 )
 
 func imageResizeHandler(w http.ResponseWriter, r *http.Request) {
@@ -30,6 +31,8 @@ func imageResizeHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, err)
 		return
 	}
+	gmtLoc, _ := time.LoadLocation("GMT")
+	w.Header().Set("Expires", time.Now().In(gmtLoc).Add(time.Hour*24*7).Format(time.RFC1123))
 	rimg := resize.Thumbnail(uint(sizes[0]), uint(sizes[1]), mimg, resize.Lanczos3)
 	encodeImage(w, rimg, filepath.Ext(srcname))
 }

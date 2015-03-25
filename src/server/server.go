@@ -7,6 +7,7 @@ import (
 	"html/template"
 	"log"
 	"path/filepath"
+	"time"
 )
 
 var Workspace string // website home directory
@@ -31,7 +32,10 @@ func ListenAndServe(addr string, dir string) {
 		MaxAge: 24 * 60 * 60, // one day
 	})
 	m.Use(sessions.Sessions("sess", store))
-	m.Use(martini.Static(filepath.Join(dir, "public")))
+	gmtLoc, _ := time.LoadLocation("GMT")
+	m.Use(martini.Static(filepath.Join(dir, "public"), martini.StaticOptions{
+		Expires: func() string { return time.Now().In(gmtLoc).Add(time.Hour * 24 * 7).Format(time.RFC1123) },
+	}))
 	m.Get("/", publicIndexHandler)
 	m.Get(`/([^\/]*).html`, publicArticleHandler)
 	m.Get("/img/(.*)", imageResizeHandler)
