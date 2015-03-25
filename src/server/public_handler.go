@@ -24,12 +24,12 @@ func publicIndexHandler(w http.ResponseWriter, r *http.Request) {
 func serveArticle(w http.ResponseWriter, r *http.Request, isPublic bool, filename string) {
 	parser := builder.NewArticleParser(filename)
 	info, err := parser.Parse()
-	info.IsPublic = isPublic
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprintf(w, "parse error: %s", err)
+		fmt.Fprintf(w, "parse error: %s", filepath.Base(filename))
 		return
 	}
+	info.IsPublic = isPublic
 	if err := templates.ExecuteTemplate(w, "article.tmpl", info); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprintf(w, "parse error: %s", err)
