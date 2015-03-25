@@ -1,11 +1,13 @@
 package server
 
 import (
+	"html/template"
 	"io/ioutil"
 	"path/filepath"
 )
 
 const authFormStirng = `
+<!doctype html>
 <html>
 <head></head>
 <body>
@@ -43,4 +45,16 @@ func currentPassword() string {
 	} else {
 		return string(b)
 	}
+}
+
+func initTemplate() error {
+	tmpl, err := template.ParseFiles(
+		filepath.Join(Workspace, "template", "article.tmpl"),
+		filepath.Join(Workspace, "template", "home.tmpl"),
+	)
+	if err != nil {
+		return err
+	}
+	templates = tmpl
+	return nil
 }

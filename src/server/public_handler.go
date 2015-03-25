@@ -30,7 +30,7 @@ func serveArticle(w http.ResponseWriter, r *http.Request, isPublic bool, filenam
 		fmt.Fprintf(w, "parse error: %s", err)
 		return
 	}
-	if err := blogBuilder.Template().ExecuteTemplate(w, "article.tmpl", info); err != nil {
+	if err := templates.ExecuteTemplate(w, "article.tmpl", info); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprintf(w, "parse error: %s", err)
 	}
@@ -64,7 +64,7 @@ func serveIndex(w http.ResponseWriter, r *http.Request, isPublic bool, dirname s
 		"Title":    "latermoon's blog",
 		"IsPublic": isPublic,
 	}
-	if err := blogBuilder.Template().ExecuteTemplate(w, "home.tmpl", data); err != nil {
+	if err := templates.ExecuteTemplate(w, "home.tmpl", data); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprintf(w, "parse error: %s", err)
 		return

@@ -1,31 +1,28 @@
 package server
 
 import (
-	"builder"
 	"github.com/go-martini/martini"
+	"github.com/howeyc/fsnotify"
 	"github.com/martini-contrib/sessions"
+	"html/template"
 	"log"
 	"path/filepath"
 )
 
 var Workspace string // website home directory
-var blogBuilder *builder.BlogBuilder
+var templates *template.Template
 
-const sessName = "auth2"
+const sessName = "auth"
 
-func ListenAndServe(addr string, workspace string) {
-	Workspace = workspace
+func ListenAndServe(addr string, dir string) {
+	Workspace = dir
 
-	// builder
-	var err error
-	blogBuilder, err = builder.NewBlogBuilder(Workspace)
-	if err != nil {
+	if err := initTemplate(); err != nil {
 		log.Fatal(err)
 	}
-	done := make(chan bool)
 
-	log.Println("workspace:", workspace)
-	// go watch(filepath.Join(workspace, "article"), filepath.Join(workspace, "template"))
+	log.Println("workspace:", dir)
+	go watchTemplateModify()
 
 	m := martini.Classic()
 	store := sessions.NewCookieStore([]byte(sessName))
@@ -34,7 +31,7 @@ func ListenAndServe(addr string, workspace string) {
 		MaxAge: 24 * 60 * 60, // one day
 	})
 	m.Use(sessions.Sessions("sess", store))
-	m.Use(martini.Static(filepath.Join(workspace, "public")))
+	m.Use(martini.Static(filepath.Join(dir, "public")))
 	m.Get("/", publicIndexHandler)
 	m.Get(`/([^\/]*).html`, publicArticleHandler)
 	m.Get("/img/(.*)", imageResizeHandler)
@@ -42,6 +39,12 @@ func ListenAndServe(addr string, workspace string) {
 	m.Get("/logout", logoutHandler)
 	m.Group("/private", privateGroup)
 	m.RunOnAddr(addr)
+}
 
-	<-done
+func watchTemplateModify() {
+	dir := filepath.Join(Workspace, "template")
+	watch(dir, func(e *fsnotify.FileEvent, err error) {
+		log.Println("event:", e.String())
+		initTemplate()
+	})
 }
