@@ -2,7 +2,6 @@ package server
 
 import (
 	"html/template"
-	"io/ioutil"
 	"path/filepath"
 )
 
@@ -37,15 +36,6 @@ if (!pwd) {
 </body>
 </html>
 `
-
-func currentPassword() string {
-	b, err := ioutil.ReadFile(filepath.Join(Workspace, "private", "password.txt"))
-	if err != nil {
-		return ""
-	} else {
-		return string(b)
-	}
-}
 
 func initTemplate() error {
 	tmpl, err := template.ParseFiles(

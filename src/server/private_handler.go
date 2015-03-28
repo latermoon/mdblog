@@ -1,8 +1,6 @@
 package server
 
 import (
-	"crypto/md5"
-	"fmt"
 	"github.com/go-martini/martini"
 	"github.com/martini-contrib/sessions"
 	"io"
@@ -49,8 +47,7 @@ func privateFileHandler(w http.ResponseWriter, r *http.Request, session sessions
 }
 
 func checkAuth(w http.ResponseWriter, r *http.Request, session sessions.Session) bool {
-	pwd := currentPassword()
-	salt := fmt.Sprintf("%x", md5.Sum([]byte(sessName+pwd)))
+	salt := blogConfig.Password
 	auth := session.Get(sessName)
 	if auth != salt {
 		io.WriteString(w, authFormStirng)

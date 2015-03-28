@@ -12,19 +12,31 @@ import (
 
 var Workspace string // website home directory
 var templates *template.Template
+var blogConfig *BlogConfig
 
 const sessName = "auth"
 
 func ListenAndServe(addr string, dir string) {
 	Workspace = dir
+	log.Println("workspace:", dir)
 
+	// init template
 	if err := initTemplate(); err != nil {
 		log.Fatal(err)
 	}
 
-	log.Println("workspace:", dir)
+	// init blog config
+	if cfg, err := NewBlogConfig(filepath.Join(Workspace, "blog.txt")); err != nil {
+		log.Fatal(err)
+	} else {
+		blogConfig = cfg
+	}
+	log.Println(blogConfig)
+
+	// watch template directory
 	go watchTemplateModify()
 
+	// http server
 	m := martini.Classic()
 	store := sessions.NewCookieStore([]byte(sessName))
 	store.Options(sessions.Options{

@@ -11,8 +11,8 @@ import (
 // http://www.01happy.com/golang-web-get-request-params/
 func authHandler(w http.ResponseWriter, r *http.Request, session sessions.Session) {
 	pwd := r.PostFormValue("pwd")
-	if pwd == currentPassword() {
-		salt := fmt.Sprintf("%x", md5.Sum([]byte(sessName+pwd)))
+	salt := fmt.Sprintf("%x", md5.Sum([]byte(sessName+pwd)))
+	if salt == blogConfig.Password {
 		session.Set(sessName, salt)
 	} else {
 		log.Println("login fail", pwd)
