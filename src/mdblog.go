@@ -27,19 +27,23 @@ func main() {
 	log.Printf("mdblog sercive start %s\n", blog.Config().Server)
 	log.Printf("workspace: %s", blog.Workspace())
 
+	// init martini
 	m := blog.Martini()
+
+	// session
 	store := sessions.NewCookieStore([]byte(blog.Config().AuthKey))
-	store.Options(sessions.Options{
-		Path:   "/private/",
-		MaxAge: 24 * 60 * 60, // one day
-	})
+	store.Options(sessions.Options{Path: "/private/", MaxAge: 24 * 60 * 60})
 	m.Use(sessions.Sessions(blog.Config().SessionName, store))
+
+	// static expires
 	gmtloc, _ := time.LoadLocation("GMT")
 	m.Use(martini.Static(blog.Path("public"), martini.StaticOptions{
 		SkipLogging: true,
 		Expires:     func() string { return time.Now().In(gmtloc).Add(time.Hour * 24 * 7).Format(time.RFC1123) },
 	}))
-	m.Use(c.AuthHandler) // auth
+
+	// handlers
+	m.Use(c.AuthHandler)
 	m.Get("/", c.HomePage)
 	m.Get("/private/", c.HomePage)
 	m.Get(`/(.*).html`, c.ArticlePage)
@@ -47,6 +51,7 @@ func main() {
 	m.Get("/logout", c.LogoutAction)
 	m.NotFound(c.FileHandler) // include custom resize image
 
+	// Go!
 	m.RunOnAddr(blog.Config().Server)
 }
 
