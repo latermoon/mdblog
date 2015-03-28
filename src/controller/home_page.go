@@ -5,6 +5,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"sort"
 )
 
 func PublicHomePage(w http.ResponseWriter, r *http.Request) {
@@ -15,6 +16,7 @@ func PublicHomePage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	sort.Sort(sort.Reverse(blog.Articles(arts)))
 	readerHomePage(w, arts)
 }
 

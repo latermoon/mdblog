@@ -31,6 +31,21 @@ func (a *Article) DateString() string {
 	return fmt.Sprintf("%d-%d-%d", dt.Year(), dt.Month(), dt.Day())
 }
 
+// Sortable
+type Articles []*Article
+
+func (a Articles) Len() int {
+	return len(a)
+}
+
+func (a Articles) Swap(i, j int) {
+	a[i], a[j] = a[j], a[i]
+}
+
+func (a Articles) Less(i, j int) bool {
+	return a[i].Date.UnixNano() < a[j].Date.UnixNano()
+}
+
 func ParseAllArticles(dirname string) ([]*Article, error) {
 	files, err := ioutil.ReadDir(dirname)
 	if err != nil {

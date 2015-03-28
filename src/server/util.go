@@ -31,7 +31,7 @@ var pwd = prompt('Your password?');
 if (!pwd) {
 	location.href = '/';
 } else {
-	postwith('/auth', {'pwd':pwd});
+	postwith('/login', {'pwd':pwd});
 }
 </script>
 </body>

@@ -4,6 +4,7 @@ import (
 	"blog"
 	c "controller"
 	"github.com/go-martini/martini"
+	"github.com/martini-contrib/sessions"
 	"log"
 	"os"
 	"runtime"
@@ -27,6 +28,12 @@ func main() {
 	log.Printf("workspace: %s", blog.Workspace())
 
 	m := blog.Martini()
+	store := sessions.NewCookieStore([]byte(blog.Config().AuthKey))
+	store.Options(sessions.Options{
+		Path:   "/private/",
+		MaxAge: 24 * 60 * 60, // one day
+	})
+	m.Use(sessions.Sessions(blog.Config().SessionName, store))
 	gmtloc, _ := time.LoadLocation("GMT")
 	m.Use(martini.Static(blog.Path("public"), martini.StaticOptions{
 		SkipLogging: true,

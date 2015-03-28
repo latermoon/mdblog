@@ -21,6 +21,8 @@ func Init(workspace string) error {
 	if _, err = toml.DecodeFile(Path("blog.txt"), &_config); err != nil {
 		return err
 	}
+	_config.SessionName = "sess"
+	_config.AuthKey = "auth"
 
 	// init templates
 	if _templates, err = template.ParseFiles(Path("template/article.tmpl"), Path("template/home.tmpl")); err != nil {
