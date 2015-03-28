@@ -2,6 +2,7 @@ package blog
 
 import (
 	"github.com/BurntSushi/toml"
+	"github.com/go-martini/martini"
 	"html/template"
 	"path/filepath"
 )
@@ -9,6 +10,7 @@ import (
 var _workspace string
 var _config BlogConfig
 var _templates *template.Template
+var _martini = martini.Classic()
 
 // Must call blog.Init(...) first
 func Init(workspace string) error {
@@ -28,12 +30,8 @@ func Init(workspace string) error {
 	return nil
 }
 
-func Workspace() string {
-	return _workspace
-}
-
-func Path(dir string) string {
-	return filepath.Join(Workspace(), dir)
+func Martini() *martini.ClassicMartini {
+	return _martini
 }
 
 func Config() BlogConfig {
@@ -42,4 +40,12 @@ func Config() BlogConfig {
 
 func Template() *template.Template {
 	return _templates
+}
+
+func Workspace() string {
+	return _workspace
+}
+
+func Path(dir string) string {
+	return filepath.Join(Workspace(), dir)
 }
