@@ -1,6 +1,7 @@
 package server
 
 import (
+	"blog"
 	"fmt"
 	"github.com/nfnt/resize"
 	"image"
@@ -20,9 +21,9 @@ func imageResizeHandler(w http.ResponseWriter, r *http.Request) {
 	dir, _, srcname, sizes := fileInfo(r.URL.Path)
 	var srcfile string
 	if strings.HasPrefix(r.URL.Path, "/private/") {
-		srcfile = filepath.Join(Workspace, dir, srcname)
+		srcfile = filepath.Join(blog.Workspace(), dir, srcname)
 	} else {
-		srcfile = filepath.Join(Workspace, "public", dir, srcname)
+		srcfile = filepath.Join(blog.Workspace(), "public", dir, srcname)
 	}
 
 	log.Println(r.URL.Path, srcname, sizes)

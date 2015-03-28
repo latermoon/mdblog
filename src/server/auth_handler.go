@@ -1,6 +1,7 @@
 package server
 
 import (
+	"blog"
 	"crypto/md5"
 	"fmt"
 	"github.com/martini-contrib/sessions"
@@ -12,7 +13,7 @@ import (
 func authHandler(w http.ResponseWriter, r *http.Request, session sessions.Session) {
 	pwd := r.PostFormValue("pwd")
 	salt := fmt.Sprintf("%x", md5.Sum([]byte(sessName+pwd)))
-	if salt == blogConfig.Password {
+	if salt == blog.Config().Password {
 		session.Set(sessName, salt)
 	} else {
 		log.Println("login fail", pwd)

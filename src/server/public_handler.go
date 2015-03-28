@@ -1,6 +1,7 @@
 package server
 
 import (
+	"blog"
 	"builder"
 	"fmt"
 	"io/ioutil"
@@ -11,12 +12,12 @@ import (
 )
 
 func publicArticleHandler(w http.ResponseWriter, r *http.Request) {
-	filename := filepath.Join(Workspace, "article", strings.TrimSuffix(r.URL.Path, ".html")+".md")
+	filename := filepath.Join(blog.Path("article"), strings.TrimSuffix(r.URL.Path, ".html")+".md")
 	serveArticle(w, r, true, filename)
 }
 
 func publicIndexHandler(w http.ResponseWriter, r *http.Request) {
-	dirname := filepath.Join(Workspace, "article")
+	dirname := blog.Path("article")
 	serveIndex(w, r, true, dirname)
 }
 
@@ -61,7 +62,7 @@ func serveIndex(w http.ResponseWriter, r *http.Request, isPublic bool, dirname s
 	sort.Sort(sort.Reverse(builder.ArticleInfos(infos)))
 	data := map[string]interface{}{
 		"Articles": infos,
-		"Title":    blogConfig.Title,
+		"Title":    blog.Config().Title,
 		"IsPublic": isPublic,
 	}
 	if err := templates.ExecuteTemplate(w, "home.tmpl", data); err != nil {

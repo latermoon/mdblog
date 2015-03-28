@@ -1,7 +1,9 @@
 package server
 
 import (
+	"blog"
 	"github.com/go-martini/martini"
+	"github.com/hashicorp/golang-lru"
 	"github.com/howeyc/fsnotify"
 	"github.com/martini-contrib/sessions"
 	"html/template"
@@ -10,31 +12,32 @@ import (
 	"time"
 )
 
-var Workspace string // website home directory
 var templates *template.Template
-var blogConfig *BlogConfig
+var cache *lru.Cache
+
+const (
+	PublicIndexCache  = "_index"
+	PrivateIndexCache = "_private"
+)
 
 const sessName = "auth"
 
 func ListenAndServe(addr string, dir string) {
-	Workspace = dir
-	log.Println("workspace:", dir)
+	log.Println("workspace:", blog.Workspace())
+	if err := blog.Init(dir); err != nil {
+		log.Fatal(err)
+	}
 
 	// init template
 	if err := initTemplate(); err != nil {
 		log.Fatal(err)
 	}
 
-	// init blog config
-	if cfg, err := NewBlogConfig(filepath.Join(Workspace, "blog.txt")); err != nil {
-		log.Fatal(err)
-	} else {
-		blogConfig = cfg
-	}
-	log.Println(blogConfig)
+	cache, _ = lru.New(100)
 
 	// watch template directory
-	go watchTemplateModify()
+	watchTemplateModify()
+	watchAtricleModify()
 
 	// http server
 	m := martini.Classic()
@@ -60,9 +63,21 @@ func ListenAndServe(addr string, dir string) {
 }
 
 func watchTemplateModify() {
-	dir := filepath.Join(Workspace, "template")
-	watch(dir, func(e *fsnotify.FileEvent, err error) {
+	go watch(blog.Path("template"), func(e *fsnotify.FileEvent, err error) {
 		log.Println("event:", e.String())
+		cache.Purge()
 		initTemplate()
+	})
+}
+
+func watchAtricleModify() {
+	go watch(blog.Path("article"), func(e *fsnotify.FileEvent, err error) {
+		log.Println("event:", e.String())
+		cache.Remove(PublicIndexCache)
+	})
+
+	go watch(blog.Path("private"), func(e *fsnotify.FileEvent, err error) {
+		log.Println("event:", e.String())
+		cache.Remove(PrivateIndexCache)
 	})
 }

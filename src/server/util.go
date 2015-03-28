@@ -1,6 +1,7 @@
 package server
 
 import (
+	"blog"
 	"html/template"
 	"path/filepath"
 )
@@ -39,8 +40,8 @@ if (!pwd) {
 
 func initTemplate() error {
 	tmpl, err := template.ParseFiles(
-		filepath.Join(Workspace, "template", "article.tmpl"),
-		filepath.Join(Workspace, "template", "home.tmpl"),
+		filepath.Join(blog.Path("template"), "article.tmpl"),
+		filepath.Join(blog.Path("template"), "home.tmpl"),
 	)
 	if err != nil {
 		return err

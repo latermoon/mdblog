@@ -1,6 +1,7 @@
 package server
 
 import (
+	"blog"
 	"github.com/go-martini/martini"
 	"github.com/martini-contrib/sessions"
 	"io"
@@ -18,7 +19,7 @@ func privateGroup(r martini.Router) {
 }
 
 func privateIndexHandler(w http.ResponseWriter, r *http.Request, session sessions.Session) {
-	dirname := filepath.Join(Workspace, "private")
+	dirname := blog.Path("private")
 	if ok := checkAuth(w, r, session); !ok {
 		return
 	}
@@ -27,7 +28,7 @@ func privateIndexHandler(w http.ResponseWriter, r *http.Request, session session
 
 // <script>var pwd = prompt('Your password?');alert(pwd);</script>
 func privateArticleHandler(w http.ResponseWriter, r *http.Request, session sessions.Session) {
-	filename := filepath.Join(Workspace, strings.TrimSuffix(r.URL.Path, ".html")+".md")
+	filename := filepath.Join(blog.Workspace(), strings.TrimSuffix(r.URL.Path, ".html")+".md")
 	if ok := checkAuth(w, r, session); !ok {
 		return
 	}
@@ -35,7 +36,7 @@ func privateArticleHandler(w http.ResponseWriter, r *http.Request, session sessi
 }
 
 func privateFileHandler(w http.ResponseWriter, r *http.Request, session sessions.Session) {
-	filename := filepath.Join(Workspace, r.URL.Path)
+	filename := filepath.Join(blog.Workspace(), r.URL.Path)
 	if ok := checkAuth(w, r, session); !ok {
 		return
 	}
@@ -52,7 +53,7 @@ func privateFileHandler(w http.ResponseWriter, r *http.Request, session sessions
 }
 
 func checkAuth(w http.ResponseWriter, r *http.Request, session sessions.Session) bool {
-	salt := blogConfig.Password
+	salt := blog.Config().Password
 	auth := session.Get(sessName)
 	if auth != salt {
 		io.WriteString(w, authFormStirng)
