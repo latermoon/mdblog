@@ -2,32 +2,36 @@ package controller
 
 import (
 	"blog"
-	"io"
 	"log"
 	"net/http"
 	"sort"
+	"strings"
 )
 
-func PublicHomePage(w http.ResponseWriter, r *http.Request) {
-	arts, err := blog.ParseAllArticles(blog.Path("article"))
+func HomePage(w http.ResponseWriter, r *http.Request) {
+	var dirname, title string
+	if strings.HasPrefix(r.URL.Path, "/private/") {
+		dirname, title = blog.Path("private"), "Private Blog"
+	} else {
+		dirname, title = blog.Path("article"), blog.Config().Title
+	}
+
+	arts, err := blog.ParseAllArticles(dirname)
 	if err != nil {
 		log.Println(err)
-		ErrorPage(w, http.StatusInternalServerError, "parse error")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	sort.Sort(sort.Reverse(blog.Articles(arts)))
 
 	data := map[string]interface{}{
-		"Title":    blog.Config().Title,
+		"Title":    title,
 		"Articles": arts,
 	}
-	readerHomePage(w, data)
-}
 
-func readerHomePage(wr io.Writer, data map[string]interface{}) error {
-	if err := blog.Template().ExecuteTemplate(wr, "home.tmpl", data); err != nil {
-		return err
+	if err := blog.Template().ExecuteTemplate(w, "home.tmpl", data); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
-	return nil
 }

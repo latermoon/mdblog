@@ -5,8 +5,10 @@ import (
 	"crypto/md5"
 	"fmt"
 	"github.com/martini-contrib/sessions"
+	"io"
 	"log"
 	"net/http"
+	"strings"
 )
 
 const authFormStirng = `
@@ -40,6 +42,16 @@ if (!pwd) {
 </body>
 </html>
 `
+
+func AuthHandler(w http.ResponseWriter, r *http.Request, session sessions.Session) {
+	if strings.HasPrefix(r.URL.Path, "/private/") {
+		salt := blog.Config().Password
+		auth := session.Get(blog.Config().AuthKey)
+		if auth != salt {
+			io.WriteString(w, authFormStirng)
+		}
+	}
+}
 
 func LoginAction(w http.ResponseWriter, r *http.Request, session sessions.Session) {
 	pwd := r.PostFormValue("pwd")

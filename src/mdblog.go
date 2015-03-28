@@ -39,11 +39,13 @@ func main() {
 		SkipLogging: true,
 		Expires:     func() string { return time.Now().In(gmtloc).Add(time.Hour * 24 * 7).Format(time.RFC1123) },
 	}))
-	m.Get("/", c.PublicHomePage)
-	m.Group("/private", c.PrivateGroup)
-	m.Get(`/(.*).html`, c.PublicArticlePage)
+	m.Use(c.AuthHandler) // auth
+	m.Get("/", c.HomePage)
+	m.Get("/private/", c.HomePage)
+	m.Get(`/(.*).html`, c.ArticlePage)
 	m.Post("/login", c.LoginAction)
 	m.Get("/logout", c.LogoutAction)
+	m.NotFound(c.FileHandler) // include custom resize image
 
 	m.RunOnAddr(blog.Config().Server)
 }
