@@ -39,11 +39,16 @@ func privateFileHandler(w http.ResponseWriter, r *http.Request, session sessions
 	if ok := checkAuth(w, r, session); !ok {
 		return
 	}
-	if _, err := os.Stat(filename); err != nil && strings.HasPrefix(r.URL.Path, "/private/img/") {
+	if _, err := os.Stat(filename); err == nil {
+		http.ServeFile(w, r, filename)
+		return
+	}
+
+	imgExts := map[string]bool{".jpg": true, ".jpeg": true, ".png": true}
+	if _, ok := imgExts[filepath.Ext(r.URL.Path)]; ok {
 		imageResizeHandler(w, r)
 		return
 	}
-	http.ServeFile(w, r, filename)
 }
 
 func checkAuth(w http.ResponseWriter, r *http.Request, session sessions.Session) bool {
