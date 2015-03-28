@@ -1,4 +1,4 @@
-package server
+package blog
 
 import (
 	"github.com/howeyc/fsnotify"

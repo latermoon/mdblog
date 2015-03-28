@@ -47,3 +47,11 @@ func main() {
 
 	m.RunOnAddr(blog.Config().Server)
 }
+
+/*
+	go watch(blog.Path("template"), func(e *fsnotify.FileEvent, err error) {
+		log.Println("event:", e.String())
+		cache.Purge()
+		initTemplate()
+	})
+*/
