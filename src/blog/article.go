@@ -21,6 +21,7 @@ type Article struct {
 	Filename     string        // article/hello.md
 	BaseName     string        // base name: hello.md
 	HtmlName     string        // html name: hello.html
+	IsPrivate    bool          // private or not
 }
 
 func (a *Article) DateString() string {
