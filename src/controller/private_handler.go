@@ -13,6 +13,10 @@ func PrivateGroup(r martini.Router) {
 	r.Get(`/(.*)`, privateFileHandler)
 }
 
+func PrivateArticlePage(w http.ResponseWriter, r *http.Request, session sessions.Session) {
+
+}
+
 func privateFileHandler(w http.ResponseWriter, r *http.Request, session sessions.Session) {
 
 }
