@@ -3,7 +3,7 @@ package controller
 import (
 	"blog"
 	"os"
-	"path/filepath"
+	"path"
 	"strings"
 )
 
@@ -14,17 +14,9 @@ func fileExist(filename string) bool {
 
 // return markdown filename
 func articlePath(urlpath string) string {
-	return filepath.Join(blog.Path("article"), strings.TrimSuffix(urlpath, filepath.Ext(urlpath))+".md")
+	return path.Join(blog.Path("article"), strings.TrimSuffix(urlpath, path.Ext(urlpath))+".md")
 }
 
 func isPrivatePath(urlpath string) bool {
 	return strings.Contains(urlpath, "/private/")
-}
-
-func resourcePath(urlpath string) string {
-	if !strings.HasPrefix(urlpath, "/private/") {
-		return filepath.Join(blog.Path("public"), urlpath)
-	} else {
-		return filepath.Join(blog.Workspace(), urlpath)
-	}
 }

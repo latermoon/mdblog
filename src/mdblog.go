@@ -37,7 +37,7 @@ func main() {
 	m.Get("/(.*).(html|md)", c.ArticlePage)
 	m.Post("/login", c.LoginAction)
 	m.Get("/logout", c.LogoutAction)
-	m.NotFound(c.Static("article"), c.FileHandler)
+	m.NotFound(c.Static("article"), c.ImageResize("article"))
 
 	// Go!
 	m.RunOnAddr(blog.Config().Server)

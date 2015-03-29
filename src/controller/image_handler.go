@@ -2,78 +2,50 @@ package controller
 
 import (
 	"blog"
-	"fmt"
-	"github.com/nfnt/resize"
-	"image"
-	"image/jpeg"
-	"image/png"
-	"io"
+	"github.com/disintegration/imaging"
+	// "github.com/nfnt/resize"
+	"github.com/go-martini/martini"
 	"log"
 	"net/http"
-	"os"
-	"path/filepath"
+	"path"
+	"regexp"
 	"strconv"
-	"strings"
 	"time"
 )
 
-func imageResizeHandler(w http.ResponseWriter, r *http.Request) {
-	dir, _, srcname, sizes := fileInfo(r.URL.Path)
-	var srcfile string
-	if strings.HasPrefix(r.URL.Path, "/private/") {
-		srcfile = filepath.Join(blog.Workspace(), dir, srcname)
-	} else {
-		srcfile = filepath.Join(blog.Workspace(), "public", dir, srcname)
-	}
+// horse.jpg
+// horse,800x600.jpg
+// horse,800x0.jpg
+// horse,0x600.jpg
+func ImageResize(dirname string) martini.Handler {
+	re := regexp.MustCompile(`(.+),([0-9]+)x([0-9]+)(\.\w+)$`)
+	return func(w http.ResponseWriter, r *http.Request) {
+		urlpath := r.URL.Path
+		matches := re.FindStringSubmatch(path.Base(urlpath))
+		if len(matches) != 5 {
+			return // skip
+		}
 
-	log.Println(r.URL.Path, srcname, sizes)
-	mimg, err := loadImage(srcfile)
-	if err != nil {
-		fmt.Fprintln(w, err)
-		return
-	}
-	gmtLoc, _ := time.LoadLocation("GMT")
-	w.Header().Set("Expires", time.Now().In(gmtLoc).Add(time.Hour*24*7).Format(time.RFC1123))
-	rimg := resize.Thumbnail(uint(sizes[0]), uint(sizes[1]), mimg, resize.Lanczos3)
-	encodeImage(w, rimg, filepath.Ext(srcname))
-}
+		// matches = [horse,200x500.jpg horse 200 500 jpg]
+		basename := matches[1] + matches[4]
+		width, _ := strconv.Atoi(matches[2])
+		height, _ := strconv.Atoi(matches[3])
+		filename := path.Join(blog.Path(dirname), path.Dir(urlpath), basename)
+		log.Printf("resize image: %s/%s, %dx%d\n", path.Dir(urlpath), basename, width, height)
 
-func encodeImage(w io.Writer, m image.Image, ext string) {
-	switch strings.ToLower(ext) {
-	case ".png":
-		png.Encode(w, m)
-	default: // ".jpg", ".jpeg":
-		jpeg.Encode(w, m, &jpeg.Options{Quality: 85})
-	}
-}
+		srcimg, err := imaging.Open(filename)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 
-func loadImage(filename string) (img image.Image, err error) {
-	f, err := os.Open(filename)
-	if err != nil {
-		return nil, err
-	}
-	defer f.Close()
+		dstimg := imaging.Resize(srcimg, width, height, imaging.Box)
+		gmtloc, _ := time.LoadLocation("GMT")
+		w.Header().Set("Expires", time.Now().In(gmtloc).Add(time.Hour*24*7).Format(time.RFC1123))
 
-	ext := filepath.Ext(filename)
-	switch strings.ToLower(ext) {
-	case ".jpg", ".jpeg":
-		return jpeg.Decode(f)
-	case ".png":
-		return png.Decode(f)
-	default:
-		img, _, err = image.Decode(f)
-		return
+		if err := imaging.Encode(w, dstimg, imaging.JPEG); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 	}
-}
-
-func fileInfo(filename string) (dir, name, srcname string, sizes []int) {
-	dir, name = filepath.Split(filename)
-	ext := filepath.Ext(name)
-	pairs := strings.Split(strings.TrimSuffix(name, ext), ",")
-	srcname = pairs[0] + filepath.Ext(name)
-	sizePairs := strings.Split(pairs[1], "x")
-	sizes = make([]int, 2)
-	sizes[0], _ = strconv.Atoi(sizePairs[0])
-	sizes[1], _ = strconv.Atoi(sizePairs[1])
-	return
 }

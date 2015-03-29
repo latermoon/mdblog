@@ -32,6 +32,7 @@ go get github.com/howeyc/fsnotify
 go get github.com/go-martini/martini
 go get github.com/martini-contrib/sessions
 go get github.com/BurntSushi/toml
+go get github.com/disintegration/imaging
 ```
 
 ### Files
