@@ -5,6 +5,7 @@ import (
 	"os"
 	"path"
 	"strings"
+	"time"
 )
 
 func fileExist(filename string) bool {
@@ -19,4 +20,10 @@ func articlePath(urlpath string) string {
 
 func isPrivatePath(urlpath string) bool {
 	return strings.Contains(urlpath, "/private/")
+}
+
+// Mon, 02 Jan 2006 15:04:05 GMT
+func expiresHeader(t time.Time) string {
+	loc, _ := time.LoadLocation("GMT")
+	return t.In(loc).Format(time.RFC1123)
 }
