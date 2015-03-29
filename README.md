@@ -4,10 +4,11 @@
 ```
 git clone github.com/latermoon/mdblog
 cd mdblog
+
 export GOPATH=$GOPATH:($pwd)
 go build src/mdblog.go
 
-./mdblog -d website_dir -p localhost:8801
+./mdblog website_dir
 
 append to nginx.conf
 
@@ -33,7 +34,13 @@ go get github.com/martini-contrib/sessions
 go get github.com/BurntSushi/toml
 ```
 
-### URL
-	http://blog.latermoon.me/first-blog.html
-	http://blog.latermoon.me/private/wallpaper_1.html
-	http://blog.latermoon.me/private/img/ok
+### Files
+```
+blog.latermoon.me
+	article
+		private
+		my-first-markdown-blog.md
+		about-me.md
+	static
+	template
+```

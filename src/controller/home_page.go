@@ -4,18 +4,16 @@ import (
 	"blog"
 	"log"
 	"net/http"
+	"path"
 	"sort"
 	"strings"
 )
 
 func HomePage(w http.ResponseWriter, r *http.Request) {
-	var dirname, title string
-	isPrivate := false
-	if strings.HasPrefix(r.URL.Path, "/private/") {
-		dirname, title = blog.Path("private"), "Private Blog"
-		isPrivate = true
-	} else {
-		dirname, title = blog.Path("article"), blog.Config().Title
+	dirname, title := path.Join(blog.Path("article"), r.URL.Path), blog.Config().Title
+	isPrivate := strings.Contains(r.URL.Path, "/private/")
+	if isPrivate {
+		title = "Private Blog"
 	}
 
 	arts, err := blog.ParseAllArticles(dirname)

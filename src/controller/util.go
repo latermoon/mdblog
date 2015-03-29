@@ -12,13 +12,13 @@ func fileExist(filename string) bool {
 	return err == nil
 }
 
-// return filename and private or not
-func articlePath(urlpath string) (string, bool) {
-	if !strings.HasPrefix(urlpath, "/private/") {
-		return filepath.Join(blog.Path("article"), strings.TrimSuffix(urlpath, ".html")+".md"), false
-	} else {
-		return filepath.Join(blog.Workspace(), strings.TrimSuffix(urlpath, ".html")+".md"), true
-	}
+// return markdown filename
+func articlePath(urlpath string) string {
+	return filepath.Join(blog.Path("article"), strings.TrimSuffix(urlpath, filepath.Ext(urlpath))+".md")
+}
+
+func isPrivatePath(urlpath string) bool {
+	return strings.Contains(urlpath, "/private/")
 }
 
 func resourcePath(urlpath string) string {

@@ -3,12 +3,9 @@ package main
 import (
 	"blog"
 	c "controller"
-	"github.com/go-martini/martini"
-	"github.com/martini-contrib/sessions"
 	"log"
 	"os"
 	"runtime"
-	"time"
 )
 
 func init() {
@@ -21,35 +18,26 @@ func main() {
 		log.Fatal("workspace not special")
 	}
 
-	// init blog
+	// init Workspace first
 	blog.Init(os.Args[1])
 
 	log.Printf("mdblog sercive start %s\n", blog.Config().Server)
 	log.Printf("workspace: %s", blog.Workspace())
 
-	// init martini
+	// martini
 	m := blog.Martini()
 
-	// session
-	store := sessions.NewCookieStore([]byte(blog.Config().AuthKey))
-	store.Options(sessions.Options{Path: "/private/", MaxAge: 24 * 60 * 60})
-	m.Use(sessions.Sessions(blog.Config().SessionName, store))
-
-	// static expires
-	gmtloc, _ := time.LoadLocation("GMT")
-	m.Use(martini.Static(blog.Path("public"), martini.StaticOptions{
-		SkipLogging: true,
-		Expires:     func() string { return time.Now().In(gmtloc).Add(time.Hour * 24 * 7).Format(time.RFC1123) },
-	}))
+	// middlewares
+	m.Use(c.Sessions())
+	m.Use(c.Static("static"))
 
 	// handlers
 	m.Use(c.AuthHandler)
-	m.Get("/", c.HomePage)
-	m.Get("/private/", c.HomePage)
-	m.Get(`/(.*).html`, c.ArticlePage)
+	m.Get("(.*)/", c.HomePage)
+	m.Get("/(.*).(html|md)", c.ArticlePage)
 	m.Post("/login", c.LoginAction)
 	m.Get("/logout", c.LogoutAction)
-	m.NotFound(c.FileHandler) // include custom resize image
+	m.NotFound(c.Static("article"), c.FileHandler)
 
 	// Go!
 	m.RunOnAddr(blog.Config().Server)

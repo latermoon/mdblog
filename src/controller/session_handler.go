@@ -4,6 +4,7 @@ import (
 	"blog"
 	"crypto/md5"
 	"fmt"
+	"github.com/go-martini/martini"
 	"github.com/martini-contrib/sessions"
 	"io"
 	"log"
@@ -42,6 +43,12 @@ if (!pwd) {
 </body>
 </html>
 `
+
+func Sessions() martini.Handler {
+	store := sessions.NewCookieStore([]byte(blog.Config().AuthKey))
+	store.Options(sessions.Options{Path: "/private/", MaxAge: 24 * 60 * 60})
+	return sessions.Sessions(blog.Config().SessionName, store)
+}
 
 func AuthHandler(w http.ResponseWriter, r *http.Request, session sessions.Session) {
 	if strings.HasPrefix(r.URL.Path, "/private/") {
