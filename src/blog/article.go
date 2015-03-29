@@ -7,21 +7,21 @@ import (
 	"html/template"
 	"io/ioutil"
 	"os"
-	"path/filepath"
+	"path"
 	"strings"
 	"time"
 )
 
 type Article struct {
-	Title        string        // blog title
-	Date         time.Time     // 2015-3-28
-	LastModified time.Time     // file modification time
-	Author       string        // author
-	ContentHTML  template.HTML // from markdown
-	Filename     string        // article/hello.md
-	BaseName     string        // base name: hello.md
-	HtmlName     string        // html name: hello.html
-	IsPrivate    bool          // private or not
+	Title       string        // blog title
+	Date        time.Time     // 2015-3-28
+	ModTime     time.Time     // modification time
+	Author      string        // author
+	ContentHTML template.HTML // from markdown
+	Filename    string        // article/hello.md
+	BaseName    string        // base name: hello.md
+	HtmlName    string        // html name: hello.html
+	IsPrivate   bool          // private or not
 }
 
 func (a *Article) DateString() string {
@@ -47,35 +47,18 @@ func (a Articles) Less(i, j int) bool {
 	return a[i].Date.UnixNano() < a[j].Date.UnixNano()
 }
 
-func ParseAllArticles(dirname string) ([]*Article, error) {
-	files, err := ioutil.ReadDir(dirname)
-	if err != nil {
-		return nil, err
-	}
-	lst := make([]*Article, 0, 100)
-	for _, file := range files {
-		if file.IsDir() || !strings.HasSuffix(file.Name(), ".md") {
-			continue
-		}
-		art, err := ParseArticle(filepath.Join(dirname, file.Name()))
-		if err != nil {
-			return nil, err
-		}
-		lst = append(lst, art)
-	}
-	return lst, nil
-}
-
 // parse markdown article in to Article object
-func ParseArticle(filename string) (*Article, error) {
-	if _, err := os.Stat(filename); err != nil {
+func parseArticle(filename string) (*Article, error) {
+	info, err := os.Stat(filename)
+	if err != nil {
 		return nil, err
 	}
 	art := &Article{}
 	art.Filename = filename
-	art.BaseName = baseName(filename)
+	art.BaseName = path.Base(filename)
 	art.HtmlName = htmlName(art.BaseName)
 	art.Date = time.Unix(0, 0)
+	art.ModTime = info.ModTime()
 
 	// parse markdown
 	md, err := ioutil.ReadFile(filename)

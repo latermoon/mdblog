@@ -3,6 +3,7 @@ package main
 import (
 	"blog"
 	c "controller"
+	"github.com/go-martini/martini"
 	"log"
 	"os"
 	"runtime"
@@ -10,6 +11,7 @@ import (
 
 func init() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
+	martini.Env = martini.Prod
 }
 
 // go run src/mdblog.go /home/workspace/blog.latermoon.me

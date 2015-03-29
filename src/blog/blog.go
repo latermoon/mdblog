@@ -3,14 +3,17 @@ package blog
 import (
 	"github.com/BurntSushi/toml"
 	"github.com/go-martini/martini"
+	"github.com/golang/groupcache/lru"
 	"html/template"
-	"path/filepath"
+	"path"
+	"strings"
 )
 
 var _workspace string
 var _config BlogConfig
 var _templates *template.Template
 var _martini = martini.Classic()
+var _caches = lru.New(100)
 
 // Must call blog.Init(...) first
 func Init(workspace string) error {
@@ -49,5 +52,8 @@ func Workspace() string {
 }
 
 func Path(dir string) string {
-	return filepath.Join(Workspace(), dir)
+	if path.IsAbs(dir) && strings.HasPrefix(dir, Workspace()) {
+		return dir
+	}
+	return path.Join(Workspace(), dir)
 }

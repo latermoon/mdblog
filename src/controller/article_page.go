@@ -13,7 +13,7 @@ func ArticlePage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	art, err := blog.ParseArticle(filename)
+	art, err := blog.GetArticle(filename)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)

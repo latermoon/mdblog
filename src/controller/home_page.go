@@ -16,7 +16,7 @@ func HomePage(w http.ResponseWriter, r *http.Request) {
 		title = "Private Blog"
 	}
 
-	arts, err := blog.ParseAllArticles(dirname)
+	arts, err := blog.GetAllArticles(dirname)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)

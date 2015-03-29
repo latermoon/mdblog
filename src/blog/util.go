@@ -1,7 +1,7 @@
 package blog
 
 import (
-	"path/filepath"
+	"path"
 	"regexp"
 	"strconv"
 	"strings"
@@ -23,16 +23,11 @@ func parseDate(s string) time.Time {
 	return time.Date(year, time.Month(month), day, 0, 0, 0, 0, time.Local)
 }
 
-func baseName(filename string) string {
-	_, file := filepath.Split(filename)
-	return file
-}
-
 func htmlName(name string) string {
 	comma := strings.LastIndex(name, ",")
 	if comma != -1 {
 		name = strings.TrimSpace(name[comma+1:])
 	}
-	ext := filepath.Ext(name)
+	ext := path.Ext(name)
 	return strings.TrimSuffix(name, ext) + ".html"
 }
