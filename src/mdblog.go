@@ -5,6 +5,7 @@ import (
 	c "controller"
 	"github.com/go-martini/martini"
 	"log"
+	"net/http"
 	"os"
 	"runtime"
 )
@@ -39,7 +40,7 @@ func main() {
 	m.Get("/(.*).(html|md)", c.ArticlePage)
 	m.Post("/login", c.LoginAction)
 	m.Get("/logout", c.LogoutAction)
-	m.NotFound(c.Static("article"), c.ImageResize("article"))
+	m.NotFound(c.Static("article"), c.ImageResize("article"), http.NotFound)
 
 	// Go!
 	m.RunOnAddr(blog.Config().Server)

@@ -37,6 +37,10 @@ func ImageResize(dirname string) martini.Handler {
 		}
 		filename := path.Join(blog.Path(dirname), path.Dir(urlpath), basename)
 
+		if !fileExist(filename) {
+			return
+		}
+
 		// check cache
 		cachefile := imageCacheName(urlpath)
 
