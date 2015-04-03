@@ -86,15 +86,18 @@ func fillArticleInfo(mdhtml string, art *Article) error {
 
 	// Meta
 	ul := doc.Find("ul").First()
+	found := false
 	ul.Find("li").Each(func(i int, s *goquery.Selection) {
 		text := s.Text()
 		if strings.HasPrefix(text, "by") {
-			art.Author = text[3:]
+			art.Author, found = text[3:], true
 		} else if strings.HasPrefix(text, "on") {
-			art.Date = parseDate(text[3:])
+			art.Date, found = parseDate(text[3:]), true
 		}
 	})
-	ul.Remove()
+	if found {
+		ul.Remove()
+	}
 
 	if html, err := doc.Html(); err != nil {
 		return err
