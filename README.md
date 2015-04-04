@@ -6,9 +6,7 @@ git clone github.com/latermoon/mdblog
 cd mdblog
 
 export GOPATH=$GOPATH:($pwd)
-go build src/mdblog.go
-
-./mdblog website_dir
+go run src/mdblog.go website_dir
 
 append to nginx.conf
 
@@ -35,7 +33,7 @@ go get github.com/go-martini/martini
 go get github.com/martini-contrib/sessions
 ```
 
-### Files
+### Website
 ```
 blog.latermoon.me
 	article
