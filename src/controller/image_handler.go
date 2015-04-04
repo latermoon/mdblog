@@ -88,7 +88,7 @@ func resizeImage(w io.Writer, src string, width, height int) error {
 	case ".png":
 		return png.Encode(w, dstimg)
 	default:
-		return jpeg.Encode(w, dstimg, &jpeg.Options{jpeg.DefaultQuality})
+		return jpeg.Encode(w, dstimg, &jpeg.Options{95})
 	}
 }
 
@@ -107,7 +107,7 @@ func splitImageUrlPath(urlpath string) (basename string, width, height int) {
 
 func imageCacheName(urlpath string) string {
 	name := fmt.Sprintf("%x", md5.Sum([]byte(blog.Path(urlpath))))
-	dir := "/tmp/" + fmt.Sprintf("%x", md5.Sum([]byte("mdblog")))
+	dir := "/tmp/" + fmt.Sprintf("%x", md5.Sum([]byte(blog.Workspace())))
 	if !fileExist(dir) {
 		if err := os.Mkdir(dir, os.ModePerm); err != nil {
 			log.Println(err)
