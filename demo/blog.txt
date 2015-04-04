@@ -1,0 +1,13 @@
+# Blog Title
+Title = "demo blog"
+
+# Password (in MD5) is use for accessing the /private/ path
+# md5("1234") = "81dc9bdb52d04dc20036dbd8313ed055"
+Password = "81dc9bdb52d04dc20036dbd8313ed055"
+
+# Salt for password encryption, change to any word you like before published, just don't tell hacker :]
+Salt = "salt"
+
+# Run the http server on a given host and port
+# You need set up a proxy_pass in nginx to anable domain:80 access
+Server = "localhost:8808"

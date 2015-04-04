@@ -1,0 +1,48 @@
+<!doctype html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>{{.Title}}</title>
+	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+	<link rel="stylesheet" href="/css/style.css">
+	<style>
+		body {
+			min-width: 200px;
+			max-width: 790px;
+			margin: 0 auto;
+			padding: 30px;
+		}
+	{{if .IsPrivate}}
+		div.title {
+			border-bottom: 1px dotted #B45F04;
+			margin-bottom: 10px;
+			color: #FE9A2E;
+		}
+		div.title h1 a {color: #B45F04;}
+	{{else}}
+		div.title {
+			border-bottom: 1px dotted #f2f2f2;
+			margin-bottom: 10px;
+			color: #FE9A2E;
+		}
+		div.title h1 a {color: #3b5998;}
+	{{end}}
+	</style>
+</head>
+<body>
+	<div class="title">
+	{{if .IsPrivate}}
+		<h1><a href="/">Private blog</a>&nbsp;<a href="/logout" style="color: #FFF"><i class="fa fa-sign-out"></i></a></h1>
+	{{else}}
+		<h1><a href="/">{{.Title}}</a> <a style="color: #FFF" href="/private/"><i class="fa fa-lock"></i></a></h1>
+	{{end}}
+	</div>
+
+	<ul>
+	{{range .Articles}}
+		<li><a href="{{.HtmlName}}">{{.Title}}</a></li>
+	{{end}}
+	</ul>
+</body>
+</html>

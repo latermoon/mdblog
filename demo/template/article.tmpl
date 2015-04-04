@@ -1,0 +1,44 @@
+<!doctype html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>{{.Title}}</title>
+	<meta name="author" content="{{.Author}}" />
+	<meta name="date" content="{{.DateString}}" />
+	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+	<link rel="stylesheet" href="/css/style.css">
+	<style>
+		body {
+			min-width: 200px;
+			max-width: 790px;
+			margin: 0 auto;
+			padding: 30px;
+		}
+		.meta .nav{
+			height: 27px;
+			position: absolute;
+			top: 0px;
+			right: 2px;
+		}
+	</style>
+</head>
+<body>
+	<article class="post">
+		<h1>{{.Title}}</h1>
+		<div class="meta">
+		{{if .DateString}}
+			Published on {{.DateString}}, by {{.Author}}
+		{{else}}
+			by {{.Author}}
+		{{end}}
+		{{if .IsPrivate}}
+			<div class="nav"><a class="i" href="/private/" title="Private"><i class="fa fa-reply"></i></a></div>
+		{{else}}
+			<div class="nav"><a class="i" href="/" title="Home"><i class="fa fa-home"></i></a></div>
+		{{end}}
+		</div>
+		{{.ContentHTML}}
+	</article>
+</body>
+</html>
