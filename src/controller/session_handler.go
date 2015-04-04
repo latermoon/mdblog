@@ -2,8 +2,6 @@ package controller
 
 import (
 	"blog"
-	"crypto/md5"
-	"fmt"
 	"github.com/go-martini/martini"
 	"github.com/martini-contrib/sessions"
 	"io"
@@ -52,9 +50,9 @@ func Sessions() martini.Handler {
 
 func AuthHandler(w http.ResponseWriter, r *http.Request, session sessions.Session) {
 	if strings.HasPrefix(r.URL.Path, "/private/") {
-		salt := blog.Config().Password
+		saltpwd := encodeMd5Password(blog.Config().Password)
 		auth := session.Get(blog.Config().AuthKey)
-		if auth != salt {
+		if auth != saltpwd {
 			io.WriteString(w, authFormStirng)
 		}
 	}
@@ -62,11 +60,11 @@ func AuthHandler(w http.ResponseWriter, r *http.Request, session sessions.Sessio
 
 func LoginAction(w http.ResponseWriter, r *http.Request, session sessions.Session) {
 	pwd := r.PostFormValue("pwd")
-	salt := fmt.Sprintf("%x", md5.Sum([]byte(blog.Config().AuthKey+pwd)))
-	if salt == blog.Config().Password {
-		session.Set(blog.Config().AuthKey, salt)
+	saltpwd := encodeRawPassword(pwd)
+	if saltpwd == encodeMd5Password(blog.Config().Password) {
+		session.Set(blog.Config().AuthKey, saltpwd)
 	} else {
-		log.Println("login fail", pwd)
+		log.Println("login fail")
 	}
 	http.Redirect(w, r, r.Referer(), http.StatusFound)
 }

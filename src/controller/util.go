@@ -2,6 +2,8 @@ package controller
 
 import (
 	"blog"
+	"crypto/md5"
+	"fmt"
 	"os"
 	"path"
 	"strings"
@@ -11,6 +13,15 @@ import (
 func fileExist(filename string) bool {
 	_, err := os.Stat(filename)
 	return err == nil
+}
+
+func encodeMd5Password(md5pwd string) string {
+	return fmt.Sprintf("%x", md5.Sum([]byte(blog.Config().Salt+md5pwd)))
+}
+
+func encodeRawPassword(pwd string) string {
+	md5pwd := fmt.Sprintf("%x", md5.Sum([]byte(pwd)))
+	return encodeMd5Password(md5pwd)
 }
 
 // return markdown filename
