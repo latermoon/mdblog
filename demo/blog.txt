@@ -9,5 +9,5 @@ Password = "81dc9bdb52d04dc20036dbd8313ed055"
 Salt = "salt"
 
 # Run the http server on a given host and port
-# You need set up a proxy_pass in nginx to anable domain:80 access
+# You need set up a proxy_pass in nginx to enable `your.domain.name:80` access
 Server = "localhost:8808"
