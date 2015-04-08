@@ -24,12 +24,13 @@ type Article struct {
 	IsPrivate   bool          // private or not
 }
 
+// April 6, 2015 · by latermoon
 func (a *Article) DateString() string {
 	dt := a.Date
 	if dt.Unix() < 1 {
 		return ""
 	}
-	return fmt.Sprintf("%d-%d-%d", dt.Year(), dt.Month(), dt.Day())
+	return fmt.Sprintf("%s %d, %d", dt.Month(), dt.Day(), dt.Year())
 }
 
 // Sortable
