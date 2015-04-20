@@ -15,7 +15,7 @@ func init() {
 	martini.Env = martini.Prod
 }
 
-// go run src/mdblog.go /home/workspace/blog.latermoon.me
+// go run mdblog.go /home/workspace/blog.latermoon.me
 func main() {
 	if len(os.Args) < 2 {
 		log.Fatal("workspace not special")
