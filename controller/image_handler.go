@@ -1,10 +1,10 @@
 package controller
 
 import (
-	"blog"
 	"crypto/md5"
 	"fmt"
 	"github.com/go-martini/martini"
+	"github.com/latermoon/mdblog/blog"
 	"github.com/nfnt/resize"
 	"image"
 	"image/jpeg"

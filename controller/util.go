@@ -1,9 +1,9 @@
 package controller
 
 import (
-	"blog"
 	"crypto/md5"
 	"fmt"
+	"github.com/latermoon/mdblog/blog"
 	"os"
 	"path"
 	"strings"

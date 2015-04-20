@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"blog"
+	"github.com/latermoon/mdblog/blog"
 	"log"
 	"net/http"
 	"path"

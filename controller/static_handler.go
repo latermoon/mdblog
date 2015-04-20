@@ -1,8 +1,8 @@
 package controller
 
 import (
-	"blog"
 	"github.com/go-martini/martini"
+	"github.com/latermoon/mdblog/blog"
 	"time"
 )
 

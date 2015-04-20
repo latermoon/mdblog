@@ -1,9 +1,9 @@
 package main
 
 import (
-	"blog"
-	c "controller"
 	"github.com/go-martini/martini"
+	"github.com/latermoon/mdblog/blog"
+	c "github.com/latermoon/mdblog/controller"
 	"log"
 	"net/http"
 	"os"
